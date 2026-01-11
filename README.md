@@ -1,15 +1,17 @@
 # Salty Passwords
 
 ## Purpose
-A beginner-friendly lab demonstrating secure password storage by salting passwords before hashing them. This project introduces basic password security practices in a hands-on, approachable fashion.
+A beginner-friendly lab demonstrating why and how to **salt passwords before hashing**. This project introduces basic password security practices in a hands-on fashion. 
+
+**Salting** means adding a unique set of random characters to a password before hashing it so two identical passwords produce **different hashes**, making attacks like rainbow tables ineffective.
 
 ## Threat Overview
 - Hashing passwords without a salt produces identical outputs for identical passwords, making them vulnerable to rainbow table attacks. 
 - Weak hashes are susceptible to brute-force attacks.
-- Salting the password before hashing mitigates these risks.
+- Salting the password before hashing mitigates these risks by making each hash unique.
 
 ## Implementation
-- Passwords are salted before being hashed using SHA-256.
+- Passwords are **salted** before being hashed using SHA-256.
 - Verification compares user input against stored salted hashes.
 - Simple Python scripts are provided to experiment safely.
 
@@ -20,9 +22,9 @@ A beginner-friendly lab demonstrating secure password storage by salting passwor
 4. Verify it using the prompt
 
 ## Learning Outcomes
-- Understand the importance of salting passwords before hashing.
-- Gain hands-on experience with Python hashing functions.
-- Appreciate practical security considerations in password storage.
+- Understand the importance of **salting passwords** before hashing.
+- Gain hands-on experience with Python **hashing functions**.
+- Appreciate practical **security considerations** in password storage.
 
 ## Optional Steps
 - Replace SHA-256 with Argon2 for industry-standard hashing.
