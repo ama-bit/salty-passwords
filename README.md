@@ -15,7 +15,7 @@ A beginner-friendly project demonstrating **why and how passwords should be salt
 
 `password123 -> SHA-256 -> ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f`
 
-Hashing is one-way -> the original input cannot be reversed or recovered (without a rainbow table) 
+Hashing is one-way -> the original input cannot be reversed or recovered; however, unsalted hashes may be matched using rainbow table lookups.
 
 ---
 
@@ -45,7 +45,7 @@ After salting, identical plaintext passwords produce **different hashes** making
   
 ## Nuances
 
-- Salting does **not** prevent brute force attacks, but it is significantly increases the time and computational cost required.
+- Salting does **not** prevent brute force attacks, but it significantly increases the time and computational cost required.
 - SHA-256 is used for demonstration only and is **not recommended for production password storage.** 
 
 ---
