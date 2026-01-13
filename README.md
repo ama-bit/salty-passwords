@@ -1,82 +1,126 @@
 # Salty Passwords
+### Password Salting and Hashing Demo
 
 ---
 
 ## Purpose
-A beginner-friendly project demonstrating **why and how passwords should be salted before hashing**. 
+A beginner-friendly cybersecurity project demonstrating **why passwords must be salted before hashing** and how improper storage introduces security risk.
 
 ---
 
-## Concepts
+## Project Overview :pushpin:
+
+| **Category** | **Details** |
+|-----|-------|
+| Domain | Application Security |
+| Language | Python |
+| Standard | NIST SP 800-63B |
+| Level | Beginner |
 
 ---
 
-**Hashing** turns data like passwords into a fixed-length string using a mathematical function. 
+## Core Concepts
 
-`password123 -> SHA-256 -> ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f`
+### Hashing
+- Converts input (e.g., passwords) into a fixed-length value using a mathematical function.
+- **One-way**: original password cannot be recovered.
+- Unsalted hashes are vulnerable to rainbow table attacks.  
+`password123 → SHA-256 → ef92b778bafe771...`
 
-Hashing is one-way -> the original input cannot be reversed or recovered; however, unsalted hashes may be matched using rainbow table lookups.
-
----
-
-**Salting** is the process of adding unique, randomly generated data to a password before hashing.
-
-`salt (h7&g3T%) + password (password123) -> salted input`
-
-`SHA-256("h7&g3T%password123") -> (unique hash output)`
-
-After salting, identical plaintext passwords produce **different hashes** making rainbow table attacks ineffective.
+### Salting
+- Adds **unique, random data** to a password before hashing.
+- Ensures identical passwords produce **different hashes**, mitigating precomputed attacks.  
+`salt + password → SHA-256("%S41T%password123") → unique hash`
 
 ---
 
-## Threat Overview
-1. Unsalted Hashes
-   - Same password -> same hash
-   - Easy to attack using **precomputed rainbow tables**
-   *(tables that map common passwords to their hashes)*
-2. Weak Hashing
-   - Fast algorithms like raw SHA-256 are vulnerable to **brute force attacks**
-3. Salting Mitigates Risk
-   - Each password gets a unique salt
-   *(random data/bytes combined with the password before hashing)*
-   - Attackers must crack **each hash individually**
-  
----
-  
-## Nuances
+## Threat Model
 
-- Salting does **not** prevent brute force attacks, but it significantly increases the time and computational cost required.
-- SHA-256 is used for demonstration only and is **not recommended for production password storage.** 
+**Unsalted Hashes**
+- Identical passwords → identical hashes
+- Vulnerable to rainbow table attacks
+
+**Weak Hashing**
+- Fast algorithms (e.g., raw SHA-256) allow brute-force attacks
+
+**Salting Mitigation**
+- Unique salt per password
+- Attackers must crack each hash individually, increasing effort and cost
 
 ---
 
-## Implementation
-- Passwords are **salted** before being hashed using SHA-256.
-- Verification compares user input against stored salted hashes.
-- Simple Python scripts are provided to experiment safely.
+> 💡 **Why This Matters**  
+> Compromised password databases are a leading cause of account takeover. Proper salting significantly reduces offline cracking effectiveness.
 
 ---
 
-## How to Use
-1. Clone the repository
-2. Run `python_salt_demo.py`
-3. Enter a password to hash
-4. Verify it using the prompt
+## Attack Scenario
+
+**Unsalted Passwords**
+- Attacker obtains DB → identical hashes
+- Rainbow tables recover weak passwords quickly
+- High credential exposure risk
+
+**Salted Passwords**
+- Attacker obtains DB → unique hash per password
+- Rainbow tables fail
+- Each hash must be brute-forced individually → higher time/cost
+
+---
+
+## Security Considerations
+- Salting **does not prevent brute-force attacks** but increases computational cost.
+- **SHA-256 is for demonstration only**; not suitable for production.
+- Reccomended to use **memory-hard algorithms** like Argon2 in real systems.
+
+---
+
+## Standards Alignment (NIST)
+Aligned with **NIST SP 800-63B – Digital Identity Guidelines**:  
+- Never store plaintext passwords  
+- Use salted & hashed storage  
+- Avoid fast, unsalted hashing algorithms  
+- Apply modern password hashing techniques  
+
+*This project demonstrates these principles in a safe, educational environment.*
+
+---
+
+## Implementation Overview
+- Salt passwords before hashing
+- Verify user input against stored salted hashes
+- Lightweight Python scripts for hands-on experimentation
+
+---
+
+## How to Run
+1. Clone the repository  
+2. Run the demo: `python_salt_demo.py`  
+3. Enter a password to generate a salted hash  
+4. Verify the password when prompted
 
 ---
 
 ## Learning Outcomes
-- Understand the importance of **salting passwords** before hashing.
-- Gain hands-on experience with Python **hashing and salting functions**.
-- Appreciate practical **security considerations** in password storage.
+- Understand **importance of salting**  
+- Gain experience with **hashing & salting in Python**  
+- Develop **threat awareness** around password compromise
 
 ---
 
-## Optional Steps
-- Replace SHA-256 with Argon2 for industry-standard hashing.
-- Add unit tests or logging for better maintainability.
-- Compare salted vs unsalted hashes using a small dataset.
+## Optional Enhancements
+- Replace SHA-256 with **Argon2**, **bcrypt**, or **PBKDF2**  
+- Add unit tests for verification logic  
+- Compare salted vs unsalted hashes  
+- Log authentication attempts for analysis
 
 ---
 
+> ⚠️ **Security Disclaimer**  
+> Educational use only. Do not deploy in production.
 
+---
+
+## References
+- NIST, *Digital Identity Guidelines (SP 800-63B)*: https://pages.nist.gov/800-63-3/sp800-63b.html  
+- AuditBoard, *NIST Password Guidelines*: https://auditboard.com/blog/nist-password-guidelines
