@@ -1,5 +1,5 @@
 # Salty Passwords
-### Password Salting and Hashing Demo
+### Password Salting and Hashing Demo 
 
 ---
 
@@ -10,7 +10,7 @@ A beginner-friendly cybersecurity project demonstrating **why passwords must be 
 
 ## Project Overview :pushpin:
 
-| **Category** | **Details** |
+| *Category* | *Details* |
 |-----|-------|
 | Domain | Application Security |
 | Language | Python |
@@ -19,7 +19,7 @@ A beginner-friendly cybersecurity project demonstrating **why passwords must be 
 
 ---
 
-## Core Concepts
+## Core Concepts 
 
 ### Hashing
 - Converts input (e.g., passwords) into a fixed-length value using a mathematical function.
@@ -49,12 +49,12 @@ A beginner-friendly cybersecurity project demonstrating **why passwords must be 
 
 ---
 
-> 💡 **Why This Matters**  
+> **Why This Matters** :mag_right:
 > Compromised password databases are a leading cause of account takeover. Proper salting significantly reduces offline cracking effectiveness.
 
 ---
 
-## Attack Scenario
+## Attack Scenario 
 
 **Unsalted Passwords**
 - Attacker obtains DB → identical hashes
@@ -68,10 +68,10 @@ A beginner-friendly cybersecurity project demonstrating **why passwords must be 
 
 ---
 
-## Security Considerations
+## Security Considerations :thought_balloon:
 - Salting **does not prevent brute-force attacks** but increases computational cost.
 - **SHA-256 is for demonstration only**; not suitable for production.
-- Reccomended to use **memory-hard algorithms** like Argon2 in real systems.
+- Recommended to use **memory-hard algorithms** like Argon2 in real systems.
 
 ---
 
@@ -93,7 +93,7 @@ Aligned with **NIST SP 800-63B – Digital Identity Guidelines**:
 
 ---
 
-## How to Run
+## How to Run :computer:
 1. Clone the repository  
 2. Run the demo: `python_salt_demo.py`  
 3. Enter a password to generate a salted hash  
@@ -116,7 +116,7 @@ Aligned with **NIST SP 800-63B – Digital Identity Guidelines**:
 
 ---
 
-> ⚠️ **Security Disclaimer**  
+> **Security Disclaimer** :warning:
 > Educational use only. Do not deploy in production.
 
 ---
