@@ -23,7 +23,7 @@ This repository demonstrates basic password hashing concepts using **Python**, w
 1. Clone the repository:
    
 ```
-git clone https://github.com/salty-hash/salty-passwords.git
+git clone https://github.com/ama-bit/salty-passwords.git
 ```
 
 2. Navigate into the repo:
