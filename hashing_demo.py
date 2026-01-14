@@ -42,7 +42,7 @@ def rainbow_table_attack_demo():
         rainbow_table[hash_val] = pwd
         print(f"{pwd:<10} -> {hash_val}")
 
-    input("\nPress Enter to continue to the next part...")
+    input("\nPress Enter to continue...")
     
     print("\nNOTE:")
     print("This is a simplified rainbow table (precomputed hash lookup).")
@@ -55,7 +55,7 @@ def rainbow_table_attack_demo():
     print("\n[2] Victim uses UNSALTED hashing (INSECURE):")
     print(f"Hash stored in DB: {stolen_hash}")
 
-    input("\nPress Enter to continue to the next part...")
+    input("\nPress Enter to continue...")
     
     print("\n[3] Attacker performs lookup...")
     cracked = rainbow_table.get(stolen_hash)
@@ -63,7 +63,7 @@ def rainbow_table_attack_demo():
     if cracked:
         print(f" PASSWORD CRACKED INSTANTLY: '{cracked}'")
 
-    input("\nPress Enter to continue to the next part...")
+    input("\nPress Enter to continue...")
     
     # Salt only
     print("\n[4] Victim uses SALT (no pepper):")
@@ -73,7 +73,7 @@ def rainbow_table_attack_demo():
     print(f"Salt (stored & visible): {salt_only}")
     print(f"Hash stored in DB:       {salted_hash}")
 
-    input("\nPress Enter to continue to the next part...")
+    input("\nPress Enter to continue...")
     
     print("\n[5] Attacker tries rainbow table again...")
     cracked = rainbow_table.get(salted_hash)
@@ -93,7 +93,7 @@ def rainbow_table_attack_demo():
     print("Pepper: SECRET (server-side)")
     print(f"Hash stored in DB: {secure_hash}")
 
-    input("\nPress Enter to continue to the next part...")
+    input("\nPress Enter to continue...")
     
     print("\n[7] Attacker tries lookup again...")
     cracked = rainbow_table.get(secure_hash)
@@ -101,7 +101,7 @@ def rainbow_table_attack_demo():
     if not cracked:
         print("Attack FAILED — pepper is unknown")
     
-    input("\nPress Enter to continue to the next part...")
+    input("\nPress Enter to continue...")
     
     print("\nREAL-WORLD BEST PRACTICE:")
     print("- Use bcrypt, argon2, or scrypt")
