@@ -1,4 +1,5 @@
-# Salty Passwords: Hashing Demo :salt:
+# Salty Passwords: :salt:
+## Hashing Demo
 
 This repository demonstrates **basic password hashing concepts in Python**, including:
 
