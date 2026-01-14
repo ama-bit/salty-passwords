@@ -1,29 +1,40 @@
 import hashlib
 import secrets
 
-# Server-side secret peppers (NOT stored in DB)
-PEPPER1 = "Pepper1"
-PEPPER2 = "Pepper2"
+# --------------------------------------------------
+# Server-side secret pepper (NOT stored in database)
+# --------------------------------------------------
+PEPPER = "SuperSecretPepper"
 
+# --------------------------------------------------
+# Helper for consistent step headers
+# --------------------------------------------------
+def print_step(title):
+    print("\n" + "=" * 70)
+    print(title)
+    print("=" * 70)
+
+# --------------------------------------------------
+# Salt + Pepper hashing (educational)
+# --------------------------------------------------
 def hash_with_salt_and_pepper(password, pepper):
     salt = secrets.token_hex(8)
     combined = pepper + password + salt
     hashed = hashlib.sha256(combined.encode()).hexdigest()
     return salt, hashed
 
+# --------------------------------------------------
+# STEP 4: Rainbow Table Attack Demo
+# --------------------------------------------------
 def rainbow_table_attack_demo():
-    print("\n" + "=" * 70)
-    print("RAINBOW TABLE ATTACK DEMONSTRATION (EDUCATIONAL)")
-    print("=" * 70)
+    print("Attacker perspective:\n")
 
     common_passwords = [
         "123456", "password", "qwerty", "letmein", "admin", "welcome"
     ]
 
-    # -------------------------------
-    # Attacker precomputation
-    # -------------------------------
-    print("\n[1] Attacker precomputes hashes (NO salt, NO pepper):")
+    # Attacker precomputes hashes (no salt, no pepper)
+    print("[1] Attacker precomputes hashes (NO salt, NO pepper):")
     rainbow_table = {}
 
     for pwd in common_passwords:
@@ -35,30 +46,26 @@ def rainbow_table_attack_demo():
     print("This is a simplified rainbow table (precomputed hash lookup).")
     print("Real rainbow tables use hash chains to reduce storage.")
 
-    # -------------------------------
-    # Unsalted victim (broken)
-    # -------------------------------
+    # Unsalted victim
     victim_password = "password"
     stolen_hash = hashlib.sha256(victim_password.encode()).hexdigest()
 
     print("\n[2] Victim uses UNSALTED hashing (INSECURE):")
-    print(f"Stored hash in DB: {stolen_hash}")
+    print(f"Hash stored in DB: {stolen_hash}")
 
     print("\n[3] Attacker performs lookup...")
     cracked = rainbow_table.get(stolen_hash)
 
     if cracked:
-        print(f"PASSWORD CRACKED INSTANTLY: '{cracked}'")
+        print(f" PASSWORD CRACKED INSTANTLY: '{cracked}'")
 
-    # -------------------------------
     # Salt only
-    # -------------------------------
     print("\n[4] Victim uses SALT (no pepper):")
     salt_only = secrets.token_hex(8)
     salted_hash = hashlib.sha256((victim_password + salt_only).encode()).hexdigest()
 
     print(f"Salt (stored & visible): {salt_only}")
-    print(f"Stored hash in DB:      {salted_hash}")
+    print(f"Hash stored in DB:       {salted_hash}")
 
     print("\n[5] Attacker tries rainbow table again...")
     cracked = rainbow_table.get(salted_hash)
@@ -70,15 +77,13 @@ def rainbow_table_attack_demo():
     print("- Each user has a unique salt")
     print("- Attacker would need a new table per salt")
 
-    # -------------------------------
     # Salt + Pepper
-    # -------------------------------
     print("\n[6] Victim uses SALT + PEPPER:")
-    salt, secure_hash = hash_with_salt_and_pepper(victim_password, PEPPER1)
+    salt, secure_hash = hash_with_salt_and_pepper(victim_password, PEPPER)
 
-    print(f"Salt (visible to attacker): {salt}")
-    print("Pepper: SECRET (server-side, NOT in DB)")
-    print(f"Stored hash in DB:          {secure_hash}")
+    print(f"Salt (visible): {salt}")
+    print("Pepper: SECRET (server-side)")
+    print(f"Hash stored in DB: {secure_hash}")
 
     print("\n[7] Attacker tries lookup again...")
     cracked = rainbow_table.get(secure_hash)
@@ -86,40 +91,54 @@ def rainbow_table_attack_demo():
     if not cracked:
         print("Attack FAILED — pepper is unknown")
 
-    print("\nSUMMARY:")
-    print("- Rainbow tables rely on precomputation")
-    print("- Salt makes every hash unique")
-    print("- Pepper protects even if the DB is leaked")
-    print("- Fast hashes like SHA-256 are still NOT ideal")
+    print("\nREAL-WORLD BEST PRACTICE:")
+    print("- Use bcrypt, argon2, or scrypt")
+    print("- Use a constant server-side pepper")
+    print("- Never use fast hashes like SHA-256 for passwords")
 
+# --------------------------------------------------
+# Main demo flow
+# --------------------------------------------------
 def main():
     print("WARNING: EDUCATIONAL DEMO — NOT FOR PRODUCTION USE\n")
+    print("NOTE: In real systems, pepper is constant and stored securely.\n")
 
     password = input("Enter a password to hash: ")
 
-    print("\n================ PASSWORD HASHING DEMO ================")
+    # STEP 1
+    print_step("STEP 1: Plain SHA-256 Hash")
+    plain_hash = hashlib.sha256(password.encode()).hexdigest()
+    print(f"Hash stored in DB: {plain_hash}")
+    print("Vulnerable to rainbow table attacks")
 
-    print("\nFirst run (salt + pepper):")
-    salt1, hash1 = hash_with_salt_and_pepper(password, PEPPER1)
-    print(f"Pepper (hidden): {PEPPER1}")
-    print(f"Salt:            {salt1}")
-    print(f"Hash:            {hash1}")
+    input("\nPress Enter to continue...")
 
-    input("\nPress Enter to hash the SAME password again...")
+    # STEP 2
+    print_step("STEP 2: Salted Hash")
+    salt = secrets.token_hex(8)
+    salted_hash = hashlib.sha256((password + salt).encode()).hexdigest()
 
-    print("\nSecond run (new salt + new pepper):")
-    salt2, hash2 = hash_with_salt_and_pepper(password, PEPPER2)
-    print(f"Pepper (hidden): {PEPPER2}")
-    print(f"Salt:            {salt2}")
-    print(f"Hash:            {hash2}")
+    print(f"Salt (stored & visible): {salt}")
+    print(f"Hash stored in DB:       {salted_hash}")
+    print("Same password now produces a unique hash")
 
-    print("\nObservation:")
-    print("- Same password")
-    print("- Different salt")
-    print("- Different pepper")
-    print("- Completely different hashes")
+    input("\nPress Enter to continue...")
 
+    # STEP 3
+    print_step("STEP 3: Salt + Pepper")
+    salt, secure_hash = hash_with_salt_and_pepper(password, PEPPER)
+
+    print("Pepper: SECRET (server-side)")
+    print(f"Salt (stored & visible): {salt}")
+    print(f"Hash stored in DB:       {secure_hash}")
+    print("Protected even if the database is leaked")
+
+    input("\nPress Enter to continue...")
+
+    # STEP 4
+    print_step("STEP 4: Rainbow Table Attack")
     rainbow_table_attack_demo()
 
+# --------------------------------------------------
 if __name__ == "__main__":
     main()
