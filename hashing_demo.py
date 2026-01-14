@@ -42,6 +42,8 @@ def rainbow_table_attack_demo():
         rainbow_table[hash_val] = pwd
         print(f"{pwd:<10} -> {hash_val}")
 
+    input("\nPress Enter to continue to the next part...")
+    
     print("\nNOTE:")
     print("This is a simplified rainbow table (precomputed hash lookup).")
     print("Real rainbow tables use hash chains to reduce storage.")
@@ -53,12 +55,16 @@ def rainbow_table_attack_demo():
     print("\n[2] Victim uses UNSALTED hashing (INSECURE):")
     print(f"Hash stored in DB: {stolen_hash}")
 
+    input("\nPress Enter to continue to the next part...")
+    
     print("\n[3] Attacker performs lookup...")
     cracked = rainbow_table.get(stolen_hash)
 
     if cracked:
         print(f" PASSWORD CRACKED INSTANTLY: '{cracked}'")
 
+    input("\nPress Enter to continue to the next part...")
+    
     # Salt only
     print("\n[4] Victim uses SALT (no pepper):")
     salt_only = secrets.token_hex(8)
@@ -67,6 +73,8 @@ def rainbow_table_attack_demo():
     print(f"Salt (stored & visible): {salt_only}")
     print(f"Hash stored in DB:       {salted_hash}")
 
+    input("\nPress Enter to continue to the next part...")
+    
     print("\n[5] Attacker tries rainbow table again...")
     cracked = rainbow_table.get(salted_hash)
 
@@ -85,12 +93,16 @@ def rainbow_table_attack_demo():
     print("Pepper: SECRET (server-side)")
     print(f"Hash stored in DB: {secure_hash}")
 
+    input("\nPress Enter to continue to the next part...")
+    
     print("\n[7] Attacker tries lookup again...")
     cracked = rainbow_table.get(secure_hash)
 
     if not cracked:
         print("Attack FAILED — pepper is unknown")
-
+    
+    input("\nPress Enter to continue to the next part...")
+    
     print("\nREAL-WORLD BEST PRACTICE:")
     print("- Use bcrypt, argon2, or scrypt")
     print("- Use a constant server-side pepper")
