@@ -1,156 +1,317 @@
 import hashlib
 import secrets
+import time
 
-# --------------------------------------------------
-# Server-side secret pepper (NOT stored in database)
-# --------------------------------------------------
-PEPPER = "SuperSecretPepper"
+# ============================================================
+# CONSTANTS
+# ============================================================
 
-# --------------------------------------------------
-# Helper for consistent step headers
-# --------------------------------------------------
-def print_step(title):
-    print("\n" + "=" * 70)
-    print(title)
-    print("=" * 70)
+# Pepper is a SERVER-SIDE secret.
+# It is NEVER stored in the database.
+PEPPER = "SERVER_SIDE_SECRET_PEPPER"
 
-# --------------------------------------------------
-# Salt + Pepper hashing (educational)
-# --------------------------------------------------
-def hash_with_salt_and_pepper(password, pepper):
-    salt = secrets.token_hex(8)
-    combined = pepper + password + salt
-    hashed = hashlib.sha256(combined.encode()).hexdigest()
-    return salt, hashed
+# ANSI color codes (ASCII-only, terminal-safe)
+RED = "\033[91m"
+GREEN = "\033[92m"
+YELLOW = "\033[93m"
+CYAN = "\033[96m"
+RESET = "\033[0m"
 
-# --------------------------------------------------
-# STEP 4: Rainbow Table Attack Demo
-# --------------------------------------------------
-def rainbow_table_attack_demo():
-    print("Attacker perspective:\n")
 
-    common_passwords = [
-        "123456", "password", "qwerty", "letmein", "admin", "welcome"
-    ]
+# ============================================================
+# HELPER FUNCTIONS
+# ============================================================
 
-    # Attacker precomputes hashes (no salt, no pepper)
-    print("[1] Attacker precomputes hashes (NO salt, NO pepper):")
-    rainbow_table = {}
+def pause():
+    """Pause so users can read before continuing."""
+    input(f"\n{CYAN}-- Press Enter to continue --{RESET}")
 
-    for pwd in common_passwords:
-        hash_val = hashlib.sha256(pwd.encode()).hexdigest()
-        rainbow_table[hash_val] = pwd
-        print(f"{pwd:<10} -> {hash_val}")
 
-    input("\nPress Enter to continue...")
-    
-    print("\nNOTE:")
-    print("This is a simplified rainbow table (precomputed hash lookup).")
-    print("Real rainbow tables use hash chains to reduce storage.")
+def header(step, title):
+    """Print a consistent, numbered section header."""
+    line = "=" * 72
+    print(f"\n{CYAN}{line}")
+    print(f"[STEP {step}] {title}")
+    print(f"{line}{RESET}")
 
-    # Unsalted victim
-    victim_password = "password"
-    stolen_hash = hashlib.sha256(victim_password.encode()).hexdigest()
 
-    print("\n[2] Victim uses UNSALTED hashing (INSECURE):")
-    print(f"Hash stored in DB: {stolen_hash}")
+def sha256(data: str) -> str:
+    """
+    SHA-256 is a FAST cryptographic hash.
+    It is NOT recommended for password storage.
+    Used here to demonstrate weaknesses.
+    """
+    return hashlib.sha256(data.encode()).hexdigest()
 
-    input("\nPress Enter to continue...")
-    
-    print("\n[3] Attacker performs lookup...")
-    cracked = rainbow_table.get(stolen_hash)
 
-    if cracked:
-        print(f" PASSWORD CRACKED INSTANTLY: '{cracked}'")
+def pbkdf2_hash(password: str, salt: str, iterations: int = 200_000) -> str:
+    """
+    PBKDF2-HMAC-SHA256
+    - Built into Python
+    - Recommended by NIST / OWASP
+    - Slow by design to resist brute-force attacks
+    """
+    dk = hashlib.pbkdf2_hmac(
+        "sha256",
+        password.encode(),
+        salt.encode(),
+        iterations
+    )
+    return dk.hex()
 
-    input("\nPress Enter to continue...")
-    
-    # Salt only
-    print("\n[4] Victim uses SALT (no pepper):")
-    salt_only = secrets.token_hex(8)
-    salted_hash = hashlib.sha256((victim_password + salt_only).encode()).hexdigest()
 
-    print(f"Salt (stored & visible): {salt_only}")
-    print(f"Hash stored in DB:       {salted_hash}")
+def ascii_flow(title, lines):
+    """Print a simple ASCII data-flow diagram."""
+    print(f"\n{YELLOW}{title}{RESET}")
+    for line in lines:
+        print(line)
+        time.sleep(0.2)
 
-    input("\nPress Enter to continue...")
-    
-    print("\n[5] Attacker tries rainbow table again...")
-    cracked = rainbow_table.get(salted_hash)
 
-    if not cracked:
-        print("Attack FAILED — salt breaks precomputation")
+def short(value, length=5):
+    """Return first few characters for table display."""
+    return value[:length] + "..."
 
-    print("\nWhy attackers can't just 'add the salt':")
-    print("- Each user has a unique salt")
-    print("- Attacker would need a new table per salt")
 
-    # Salt + Pepper
-    print("\n[6] Victim uses SALT + PEPPER:")
-    salt, secure_hash = hash_with_salt_and_pepper(victim_password, PEPPER)
+# ============================================================
+# MAIN DEMO
+# ============================================================
 
-    print(f"Salt (visible): {salt}")
-    print("Pepper: SECRET (server-side)")
-    print(f"Hash stored in DB: {secure_hash}")
-
-    input("\nPress Enter to continue...")
-    
-    print("\n[7] Attacker tries lookup again...")
-    cracked = rainbow_table.get(secure_hash)
-
-    if not cracked:
-        print("Attack FAILED — pepper is unknown")
-    
-    input("\nPress Enter to continue...")
-    
-    print("\nREAL-WORLD BEST PRACTICE:")
-    print("- Use bcrypt, argon2, or scrypt")
-    print("- Use a constant server-side pepper")
-    print("- Never use fast hashes like SHA-256 for passwords")
-
-# --------------------------------------------------
-# Main demo flow
-# --------------------------------------------------
 def main():
-    print("WARNING: EDUCATIONAL DEMO — NOT FOR PRODUCTION USE\n")
-    print("NOTE: In real systems, pepper is constant and stored securely.\n")
+    print(f"\n{CYAN}SALTY PASSWORDS: HASHING DEMO{RESET}")
+    print("Intro to hashing, salting, and peppering")
+    print("Python standard library only\n")
 
-    password = input("Enter a password to hash: ")
+    pause()
 
-    # STEP 1
-    print_step("STEP 1: Plain SHA-256 Hash")
-    plain_hash = hashlib.sha256(password.encode()).hexdigest()
-    print(f"Hash stored in DB: {plain_hash}")
-    print("Vulnerable to rainbow table attacks")
+    # --------------------------------------------------------
+    # STEP 1 — BASIC HASHING (INSECURE)
+    # --------------------------------------------------------
+    header(1, "ACCOUNT CREATION — BASIC HASHING")
 
-    input("\nPress Enter to continue...")
+    # User enters password ONCE; reused throughout the demo
+    password = input("Enter a password to use for the demo: ")
 
-    # STEP 2
-    print_step("STEP 2: Salted Hash")
-    salt = secrets.token_hex(8)
-    salted_hash = hashlib.sha256((password + salt).encode()).hexdigest()
+    ascii_flow(
+        "DATA FLOW:",
+        [
+            "Plaintext Password",
+            "        |",
+            "        v",
+            "     SHA-256",
+            "        |",
+            "        v",
+            "   Stored Hash"
+        ]
+    )
 
-    print(f"Salt (stored & visible): {salt}")
-    print(f"Hash stored in DB:       {salted_hash}")
-    print("Same password now produces a unique hash")
+    plain_hash = sha256(password)
 
-    input("\nPress Enter to continue...")
+    print("\nWhat exists:")
+    print(f"- Plaintext password: {password}")
+    print(f"- Stored hash:        {plain_hash}")
 
-    # STEP 3
-    print_step("STEP 3: Salt + Pepper")
-    salt, secure_hash = hash_with_salt_and_pepper(password, PEPPER)
+    print(f"\n{RED}Problem:{RESET}")
+    print("Fast hashes allow attackers to test billions of guesses per second, making brute-force attacks practical at scale.")
 
-    print("Pepper: SECRET (server-side)")
-    print(f"Salt (stored & visible): {salt}")
-    print(f"Hash stored in DB:       {secure_hash}")
-    print("Protected even if the database is leaked")
+    pause()
 
-    input("\nPress Enter to continue...")
+    # --------------------------------------------------------
+    # STEP 2 — ADDING A SALT
+    # --------------------------------------------------------
+    header(2, "ADDING A SALT (PER USER, STORED)")
 
-    # STEP 4
-    print_step("STEP 4: Rainbow Table Attack")
-    rainbow_table_attack_demo()
+    # A NEW salt is generated at account creation
+    # Every user gets a DIFFERENT salt
+    salt = secrets.token_hex(16)
+    salted_hash = sha256(password + salt)
 
-# --------------------------------------------------
+    print("\nWhat exists for ONE user:")
+    print(f"- Password: {password}")
+    print(f"- Salt (stored in DB): {salt}")
+    print(f"- Hash (stored in DB): {salted_hash}")
+
+    print(f"\n{GREEN}Salt defends against:{RESET}")
+    print("- Rainbow tables")
+    print("- Precomputed attacks")
+
+    print(f"\n{RED}Salt does NOT defend against:{RESET}")
+    print("- Brute-force guessing")
+    print("- Weak passwords")
+
+    pause()
+
+    # --------------------------------------------------------
+    # STEP 2A — TWO USERS, SAME PASSWORD
+    # --------------------------------------------------------
+    header("2A", "TWO USERS — SAME PASSWORD, DIFFERENT SALTS")
+
+    # Both users choose the SAME password
+    salt_a = secrets.token_hex(16)
+    salt_b = secrets.token_hex(16)
+
+    hash_a = sha256(password + salt_a)
+    hash_b = sha256(password + salt_b)
+
+    print("USER A".ljust(38) + "|" + "USER B".rjust(38))
+    print("-" * 38 + "+" + "-" * 38)
+
+    print(f"{'Password:'.ljust(16)} {password}".ljust(38) + "|" +
+          f"{'Password:'.rjust(16)} {password}".rjust(38))
+
+    print(f"{'Salt:'.ljust(16)} {short(salt_a)}".ljust(38) + "|" +
+          f"{'Salt:'.rjust(16)} {short(salt_b)}".rjust(38))
+
+    print(f"{'Hash:'.ljust(16)} {short(hash_a)}".ljust(38) + "|" +
+          f"{'Hash:'.rjust(16)} {short(hash_b)}".rjust(38))
+
+    print("\nFull values (shown below for clarity):")
+    print(f"- USER A salt: {salt_a}")
+    print(f"- USER A hash: {hash_a}")
+    print(f"- USER B salt: {salt_b}")
+    print(f"- USER B hash: {hash_b}")
+
+    print(f"\n{GREEN}Key takeaway:{RESET}")
+    print("Same password + different salts = completely different hashes.")
+    print("Attackers cannot reuse across users.")
+
+    pause()
+
+    # --------------------------------------------------------
+    # STEP 3 — ADDING A PEPPER
+    # --------------------------------------------------------
+    header(3, "ADDING A PEPPER (SERVER-SIDE SECRET)")
+
+    # Pepper is added BEFORE hashing
+    # Pepper is NOT stored in the database
+    secure_hash = sha256(PEPPER + password + salt)
+
+    print("\nWhat exists where:")
+    print(f"- Password: {password}")
+    print(f"- Salt (DB): {salt}")
+    print(f"- Hash (DB): {secure_hash}")
+    print(f"- Pepper:   {RED}STORED SERVER SIDE, NOT IN DB{RESET}")
+
+    pause()
+
+    # --------------------------------------------------------
+    # STEP 4 — DATABASE VS ATTACKER
+    # --------------------------------------------------------
+    header(4, "DATABASE BREACH — WHO SEES WHAT")
+
+    print("DATABASE VIEW".ljust(38) + "|" + "ATTACKER VIEW".rjust(38))
+    print("-" * 38 + "+" + "-" * 38)
+
+    print(f"{'Password:'.ljust(16)} NEVER STORED".ljust(38) + "|" +
+          f"{'Password:'.rjust(16)} UNKNOWN".rjust(38))
+
+    print(f"{'Salt:'.ljust(16)} {short(salt)}".ljust(38) + "|" +
+          f"{'Salt:'.rjust(16)} {short(salt)}".rjust(38))
+
+    print(f"{'Hash:'.ljust(16)} {short(secure_hash)}".ljust(38) + "|" +
+          f"{'Hash:'.rjust(16)} {short(secure_hash)}".rjust(38))
+
+    print(f"{'Pepper:'.ljust(16)} <NOT STORED>".ljust(38) + "|" +
+          f"{'Pepper:'.rjust(16)} UNKNOWN".rjust(38))
+
+    print("\nFull values (outside table):")
+    print(f"- Full salt: {salt}")
+    print(f"- Full hash: {secure_hash}")
+
+    print(f"\n{GREEN}Key idea:{RESET}")
+    print("A breach exposes the database — not server-side secrets.")
+
+    pause()
+
+        
+    # --------------------------------------------------------
+    # STEP 5 — RATE LIMITING (ONLINE ATTACK DEFENSE)
+    # --------------------------------------------------------
+    header(5, "RATE LIMITING — ONLINE ATTACK DEFENSE")
+
+    print(
+        "Rate limiting slows attackers during LIVE login attempts.\n"
+        "Instead of allowing unlimited guesses, the system:\n"
+        "- Counts failed attempts\n"
+        "- Adds delays\n"
+        "- Makes attacks slow and noticeable\n"
+    )
+
+    max_attempts = 3   # how many tries are allowed
+    delay = 2          # seconds of delay after limit is hit
+
+    print("Simulating repeated login attempts:\n")
+
+    for attempt in range(1, 6):
+        time.sleep(0.6)  # slow output so each line appears clearly
+        print(f"Attempt {attempt}:", end=" ")
+
+        if attempt > max_attempts:
+            print(f"{YELLOW}Too many attempts — system slows response{RESET}")
+            time.sleep(delay)
+        else:
+            print("Password check performed")
+
+    print(f"\n{GREEN}Rate limiting defends against:{RESET}")
+    print("- Online brute-force attacks")
+    print("- Credential stuffing")
+
+    print(f"\n{RED}Rate limiting does NOT defend against:{RESET}")
+    print("- Database breaches")
+    print("- Offline cracking")
+    print("- Phishing")
+
+    pause()
+
+    # --------------------------------------------------------
+    # STEP 6 — FAST VS SLOW HASHING
+    # --------------------------------------------------------
+    header(6, "WHY SLOW HASHING MATTERS")
+
+    start = time.perf_counter()
+    sha256(password)
+    sha_time = time.perf_counter() - start
+
+    start = time.perf_counter()
+    pbkdf2_hash(password, salt)
+    pbkdf2_time = time.perf_counter() - start
+
+    print(f"SHA-256 time : {sha_time:.6f} seconds")
+    print(f"PBKDF2 time  : {pbkdf2_time:.6f} seconds")
+
+    print(
+    f"\n{GREEN}Slow hashes slow attackers down, "
+    f"while fast hashes allow attackers many more tries per second!{RESET}"
+)
+    pause()
+
+    # --------------------------------------------------------
+    # STEP 7 — FINAL TAKEAWAYS
+    # --------------------------------------------------------
+    header(7, "FINAL TAKEAWAYS")
+
+    print("- Passwords are NEVER stored")
+    print("- Salts are unique per user and stored")
+    print("- Same password does NOT mean same hash")
+    print("- Peppers protect breached databases")
+    print("- Slow hashes resist brute force")
+    print("- Rate limiting protects live systems")
+
+    print(f"\n{RED}NOT defended against:{RESET}")
+    print("- Phishing")
+    print("- Malware")
+    print("- Password reuse")
+
+    print("\nStandards referenced:")
+    print("- NIST SP 800-63B")
+    print("- OWASP Password Storage Cheat Sheet")
+
+    print(f"\n{CYAN}You've reached the End of this hashing demo - Thank you for your time!{RESET}")
+
+
+# ============================================================
+# PROGRAM ENTRY POINT
+# ============================================================
+
 if __name__ == "__main__":
     main()
