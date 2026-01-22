@@ -77,7 +77,6 @@ Each step pauses so users can follow along.
 
 ---
 
-
 ## How to Run :desktop_computer:
 
 1. Clone the repository:
