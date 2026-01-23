@@ -78,7 +78,7 @@ def short(value, length=5):
 # ============================================================
 
 def main():
-    print(f"\n{CYAN}SALTY PASSWORDS: HASHING DEMO{RESET}")
+    print(f"\n{CYAN}PEPPERED PASSWORDS: HASHING DEMO{RESET}")
     print("Intro to hashing, salting, and peppering")
     print("Python standard library only\n")
 
