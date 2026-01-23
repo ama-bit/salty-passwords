@@ -1,9 +1,7 @@
 # 🧑‍🍳 Peppered Passwords 🔏 
 ## Python Hashing Demo
 
-This interactive Python demo explores secure password storage, covering techniques like hashing, salting, peppering, slow hashing, and rate limiting. 
-
-You'll learn why basic hashing alone isn't enough to protect sensitive data, using only Python’s standard library for clear, accessible explanations.
+This interactive Python demo is a small learning project that walks through basic password security ideas like **hashing, salting, peppering, slow hashing, and rate limiting** to show why simply hashing a password *isn’t* enough, using Python’s standard library.
 
 ---
 
@@ -19,24 +17,24 @@ You'll learn why basic hashing alone isn't enough to protect sensitive data, usi
 
 The demo covers the following key concepts step-by-step:
 
-1. Plain Hashing (SHA-256): Understand why hashing alone isn’t secure.
+1. **Plain Hashing (SHA-256)**: Understand why hashing alone isn’t secure.
 
-2. Salting: Learn how adding random data (a salt) to a password improves security.
+2. **Salting**: Learn how integrating *unique and random data* (a salt) to a password improves security.
 
-3. Peppering: See how a secret value on the server side adds another layer of protection.
+3. **Peppering**: See how a secret value on the *server side* adds another layer of protection.
 
-4. Rate Limiting: Understand how limiting failed login attempts can help prevent brute-force attacks.
+4. **Rate Limiting**: Understand how limiting failed login attempts can help mitigate brute-force attacks.
 
-5. Slow Hashing: Compare SHA-256 (fast) to PBKDF2 (slow) and see how it impacts security.
+5. **Slow Hashing**: Compare *SHA-256 (fast) to PBKDF2 (slow)* and see how it impacts security.
 
 ---
 
 > ⚠️ **For Educational Purposes Only!**
 > This project is designed to teach concepts, not serve as production code.
 > Production systems should:
->    - Use argon2, bcrypt, or scrypt
+>    - Use argon2, bcrypt, scrypt, or similar
 >    - Store peppers securely (env vars / secrets managers)
->    - Rely on established authentication frameworks.
+>    - Rely on established authentication frameworks
 
 ---
 
@@ -69,23 +67,23 @@ python hashing_demo.py
 The demo will guide users through each concept, illustrating how passwords are processed and what happens at every step:
 
 1. **Basic Hashing (SHA-256)**
-The demo begins by showing SHA-256, a simple hashing algorithm, and explaining why it’s insufficient on its own.
+   - The demo begins by showing SHA-256, a simple hashing algorithm, and explaining why it’s *insufficient* on its own.
 
 2. **Salting**
-Next, a salt will be added to each password to demonstrate how this unique, random string enhances security.
+   - Next, a salt will be added to each password to demonstrate how this *unique, random string* enhances security.
 
 3. **Peppering**
-Peppering will then be introduced—this is a secret value stored on the server side, providing an extra layer of protection in case the database is compromised.
+   - Peppering will then be introduced. This is a secret value stored on the *server side*, providing an extra layer of protection in case the *database* is compromised.
 
 4. **Rate Limiting**
-The demo will also cover rate limiting, which helps mitigate brute-force attacks by restricting the number of failed login attempts.
+   - The demo will also cover rate limiting, which helps mitigate brute-force attacks by *restricting* the number of failed login attempts.
 
 5. **Slow Hashing**
-Lastly, the demo compares fast hashing (SHA-256) with slow hashing (PBKDF2) to explain why slower hashing is more effective for password security.
+   - Lastly, the demo compares fast hashing (SHA-256) with slow hashing (PBKDF2) to explain why *slower hashing is more effective* for password security.
 
-**Why This Matters**
+### *Why Does This Matter?*
 
-In real-world applications, passwords need to be secured properly to prevent attackers from easily gaining unauthorized access. This demo walks through fundamental concepts for secure password storage, illustrating how each technique enhances security. Understanding these concepts is crucial for anyone interested in software security.
+- In real-world applications, passwords need to be secured properly with slow, hardened hashing algorithms to reduce the risk of attackers easily gaining unauthorized access. 
 
 ---
 
@@ -125,6 +123,8 @@ Fast hashes allow attackers to test billions of guesses per second, making brute
 -- Press Enter to continue --
 ```
 
+---
+
 Below is a section of the output that shows how two users can have the same password, yet the hash values are different. This is because the salts are different every instance for each user. 
 
 ```
@@ -138,6 +138,22 @@ Salt:            572ce...             |                        Salt: 9553c...
 Hash:            923c6...             |                        Hash: 46607...
 
 ```
+
+---
+
+## Why *Not* SHA-256?
+
+- Password hashing should be slow by design
+- SHA-256 is cryptographically secure, providing integrity - but it is too fast
+
+   - Billions of SHA-256 hashes can be computed - per second
+
+   - This makes brute-force and dictionary attacks an easy feat for attackers
+
+*This demo uses SHA-256 only to illustrate the concepts covered*
+
+---
+
 Below is a snippet of output showing why slow hashing is important by comparing SHA-256 with PBKDF2.
 
 ```-- Press Enter to continue --
@@ -152,20 +168,6 @@ Slow hashes slow attackers down, while fast hashes allow attackers many more tri
 
 -- Press Enter to continue --
 ```
-
----
-
-## *Why* Not SHA-256?
-
-- SHA-256 is cryptographically secure, providing integrity - but it is too fast.
-
-- Billions of SHA-256 hashes can be computed - per second
-
-- This makes brute-force and dictionary attacks practical (easier)
-
-- Password hashing should be slow by design
-
-- This demo uses SHA-256 only to illustrate the concepts covered.
 
 ---
 
